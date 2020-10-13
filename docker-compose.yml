@@ -1,0 +1,49 @@
+version: "3"
+services:
+
+  nginx:
+    image: nginx:1.19-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/html/:/usr/share/nginx/html:rw
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/log/error.log:/var/log/nginx/error.log
+      - ./nginx/log/error.log:/etc/nginx/logs/error.log
+    restart: always
+      
+  etcd:
+    image: "quay.io/coreos/etcd"
+    restart: always
+    container_name: "etcd"
+    volumes:
+      - /Users/01400340/workspace/etcd:/etcd-data
+    environment:
+      ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+    command:
+      - /usr/local/bin/etcd
+      - --data-dir=/etcd-data
+      - --enable-v2=true
+    ports:
+      - 2379:2379
+      - 4001:4001
+      - 2380:2380
+    networks:
+      - etcd-net
+
+  etcdkeeper:
+    image: "evildecay/etcdkeeper"
+    container_name: "etcdkeeper"
+    environment:
+      HOST: "0.0.0.0"
+    ports:
+      - 12000:8080
+    networks:
+      - etcd-net
+    depends_on:
+      - etcd
+
+networks:
+  etcd-net:
