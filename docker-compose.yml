@@ -1,41 +1,42 @@
 version: "3"
 services:
 
-  nginx:
-    image: nginx:1.19-alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/html/:/usr/share/nginx/html:rw
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/log/error.log:/var/log/nginx/error.log
-      - ./nginx/log/error.log:/etc/nginx/logs/error.log
-    restart: always
+  #nginx:
+  #  image: nginx:1.19-alpine
+  #    #restart: always
+  #  ports:
+  #    - "80:80"
+  #  volumes:
+  #    - ./nginx/html/:/usr/share/nginx/html:rw
+  #    - ./nginx/conf.d:/etc/nginx/conf.d
+  #    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #    - ./nginx/log/error.log:/var/log/nginx/error.log
+  #    - ./nginx/log/error.log:/etc/nginx/logs/error.log
       
   etcd:
-    image: "quay.io/coreos/etcd"
-    restart: always
+    image: "quay.io/coreos/etcd:v3.3"
+      #restart: always
     container_name: "etcd"
     volumes:
       - /Users/01400340/workspace/etcd:/etcd-data
     environment:
       ETCD_ADVERTISE_CLIENT_URLS: "http://0.0.0.0:2379"
       ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+      ETCDCTL_API: "2"
     command:
       - /usr/local/bin/etcd
       - --data-dir=/etcd-data
       - --enable-v2=true
     ports:
-      - 2379:2379
-      - 4001:4001
-      - 2380:2380
+      - 23791:2379
+      - 40011:4001
+      - 23801:2380
     networks:
       - etcd-net
 
   etcdkeeper:
-    image: "evildecay/etcdkeeper"
-    container_name: "etcdkeeper"
+    image: "deltaprojects/etcdkeeper"
+    container_name: "etcdkeeper2"
     environment:
       HOST: "0.0.0.0"
     ports:
